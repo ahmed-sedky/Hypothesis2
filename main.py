@@ -43,6 +43,7 @@
 # # # plot
 # # pyplot.scatter(data1, data2)
 # # pyplot.show()
+
 import pandas as pd
 import numpy as np
 from matplotlib import pyplot
@@ -52,11 +53,11 @@ import statsmodels.stats.multitest
 
 
 
-data = pd.ExcelFile(r'./Tryer44.xlsx')
+data = pd.ExcelFile(r'E:\venv\Biostatistics\Tryer number 006\Hypothesis2\Tryer44.xlsx')
 
 df = pd.read_excel(data,sheet_name='lusc-rsem-fpkm-tcga_paired')
 
-data2 = pd.ExcelFile(r'./TRYERDATA.xlsx')
+data2 = pd.ExcelFile(r'E:\venv\Biostatistics\Tryer number 006\Hypothesis2\TRYERDATA.xlsx')
 print(data2.sheet_names)
 df2 = pd.read_excel(data2,sheet_name='DATA NUMBERS')
 # df = df.drop(df.index[0])
@@ -129,7 +130,7 @@ print(index_min)
 
 
 df['Correlations']=Correlations
-Writer=pd.ExcelWriter(r'./NewTryer309.xlsx')
+Writer=pd.ExcelWriter(r'E:\venv\Biostatistics\Tryer number 006\Hypothesis2\TRYERDATA225.xlsx')
 df.to_excel(Writer,'new_Sheet')
 Writer.save()
 
@@ -155,7 +156,7 @@ for i in range(0,df.shape[0]):
     # print(t_test_ind)
 # print(t_test_ind_pval)
 df['ind_pval'] = ind_pval
-Writer=pd.ExcelWriter(r'./NewTryer309.xlsx')
+Writer=pd.ExcelWriter(r'E:\venv\Biostatistics\Tryer number 006\Hypothesis2\TRYERDATA225.xlsx')
 df.to_excel(Writer,'new_Sheet')
 Writer.save()
 
@@ -174,7 +175,7 @@ for i in range(0,df.shape[0]):
     ind_pval_reject.append(ind_corr[i][0][0])
 
 df['ind_corr_pval'] = ind_corr_pValue
-Writer=pd.ExcelWriter(r'./NewTryer309.xlsx')
+Writer=pd.ExcelWriter(r'E:\venv\Biostatistics\Tryer number 006\Hypothesis2\TRYERDATA225.xlsx')
 df.to_excel(Writer,'new_Sheet')
 Writer.save()
 
@@ -193,7 +194,7 @@ for i in range(0,df.shape[0]):
     ind_corr_pval_reject.append(ind_corr_p_val2[i][0][0])
 
 df['reject_null_hypothesis_ind _corrected'] = ind_corr_pval_reject
-Writer=pd.ExcelWriter(r'./NewTryer309.xlsx')
+Writer=pd.ExcelWriter(r'E:\venv\Biostatistics\Tryer number 006\Hypothesis2\TRYERDATA225.xlsx')
 df.to_excel(Writer,'new_Sheet')
 Writer.save()
 
@@ -207,7 +208,7 @@ for i in range(0,df.shape[0]):
 
 
 df['paired_pval'] = paired_pval
-Writer=pd.ExcelWriter(r'./NewTryer309.xlsx')
+Writer=pd.ExcelWriter(r'E:\venv\Biostatistics\Tryer number 006\Hypothesis2\TRYERDATA225.xlsx')
 df.to_excel(Writer,'new_Sheet')
 Writer.save()
 
@@ -224,7 +225,7 @@ for i in range(0,df.shape[0]):
     paired_reject.append(paired_corr[i][0][0])
 
 df['paired_pval_corr'] = paired_corr_pValue
-Writer=pd.ExcelWriter(r'./NewTryer309.xlsx')
+Writer=pd.ExcelWriter(r'E:\venv\Biostatistics\Tryer number 006\Hypothesis2\TRYERDATA225.xlsx')
 df.to_excel(Writer,'new_Sheet')
 Writer.save()
 
@@ -242,7 +243,7 @@ for i in range(0,df.shape[0]):
     paired_corr_pval_reject.append(paired_corr2[i][0][0])
 
 df['reject_null_hypothesis_paired_corrected'] = paired_corr_pval_reject
-Writer=pd.ExcelWriter(r'./NewTryer309.xlsx')
+Writer=pd.ExcelWriter(r'E:\venv\Biostatistics\Tryer number 006\Hypothesis2\TRYERDATA225.xlsx')
 df.to_excel(Writer,'new_Sheet')
 Writer.save()
 
@@ -257,3 +258,70 @@ print ( num_true_ind_before )
 print ( num_true_ind_after )
 print( num_true_paired_before )
 print ( num_true_paired_after )
+
+
+
+
+
+data21 = pd.ExcelFile(r'E:\venv\Biostatistics\Tryer number 006\Hypothesis2\TRYERDATA225.xlsx')
+
+df3 = pd.read_excel(data21,sheet_name='new_Sheet')
+
+checker=[]
+checker2=[]
+checker3 = []
+checker4=[]
+for i in range(0,df3.shape[0]):
+    row=df3.iloc[ i, 57:59]
+    row2=df3.iloc[ i, 61:63]
+    numpyRow = row.to_numpy()
+    numpyRow2 = row2.to_numpy()
+
+    if(numpyRow[0]!=numpyRow[1]):
+        checker.append(df3.index[i])
+    else:
+        checker3.append(df3.index[i])
+
+    if(numpyRow2[0]!=numpyRow2[1]):
+        checker2.append(df3.index[i])
+    else:
+        checker4.append(df3.index[i])
+
+Unique_ind=[]
+for i in checker:
+    Unique_ind.append(df3.iloc[i,1])
+
+print(len(Unique_ind))
+
+
+Unique_Paired=[]
+for i in checker2:
+    Unique_Paired.append(df3.iloc[i,1])
+
+print(len(Unique_Paired))
+
+
+Common_ind=[]
+for i in checker3:
+    Common_ind.append(df3.iloc[i,1])
+
+print(len(Common_ind))
+
+Common_Paired=[]
+for i in checker4:
+    Common_Paired.append(df3.iloc[i,1])
+
+print(len(Common_Paired))
+
+
+
+
+
+
+df['Unique_ind'] = Unique_ind
+df['Unique_Paired'] = Unique_Paired
+Writer=pd.ExcelWriter(r'E:\venv\Biostatistics\Tryer number 006\Hypothesis2\TRYERDATA225.xlsx')
+df.to_excel(Writer,'new_Sheet2')
+Writer.save()
+
+
