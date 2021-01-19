@@ -1,6 +1,5 @@
-
 import pandas as pd   # to deal with excel files read and write
-import numpy as np     # library to deal with multi dimensional arrays with high high level mathematical functions to operate on these arrays
+import numpy as np     # library to deal with multi dimensional arrays with high level mathematical functions to operate on these arrays
 from matplotlib import pyplot   # we use it to plot max & min correlation
 from scipy import stats     # we use it to calculate t_test which is a method init
 import statsmodels.api 
@@ -41,6 +40,7 @@ while (i < rows):
     Correlations.append(float(X)) # we append the correlation numbers on an empty list
     i+=1
 
+print ("Number Of Genes After Filteration:  %s" %df.shape[0])
 
 print('=' * 100)
 print ("max Correlation:  %s" %max(Correlations))
@@ -53,6 +53,7 @@ index_min = Correlations.index(min(Correlations))
 print("name Of Gene That Has Min Correlation:  %s" %df.iloc[index_min ,0])
 print("index of max Correlation:  %s" %index_max)
 print("index of min Correlation:  %s" %index_min)
+print ('=' * 150)
 
 
 
@@ -62,7 +63,7 @@ df.to_excel(Writer,'new_Sheet')
 Writer.save()
 
 df['Sorted_Correlations']=np.sort(Correlations) # add sorted correlation coulmn in excel
-Writer=pd.ExcelWriter(r'./NewTryer309.xlsx')
+Writer=pd.ExcelWriter(r'./TRYERDATA225.xlsx')
 df.to_excel(Writer,'new_Sheet')
 Writer.save()
 
@@ -75,65 +76,22 @@ for i in range(0, df.shape[0]): # this for loop is to fetch the data of genes th
 
 ind = []
 ind_pval = []
+paired = []
+paired_pval = []
 for i in range(0,df.shape[0]): # this for Loop Is To Get Pvalues of independant samples
-    rowData = df.iloc[ i, 2: ] # we pass The First And Second Column
-    rowData2 = df2.iloc[ i, 2: ]
+    rowData = df.iloc[ i, 2:50 ] # we pass The First And Second Column
+    rowData2 = df2.iloc[ i, 2:50 ]
     
     ind.append(stats.ttest_ind((rowData.to_numpy()).astype(float),(rowData2.to_numpy()).astype(float))) # the method ttest_ind returns two value 1st :statistics 2nd : pvalue so we Sort it in an empty array called  ind
     ind_pval.append(ind[i][1]) # we get only pvalue from array ind  and append it in an ind_pval array
+
+    paired.append(stats.ttest_rel((rowData.to_numpy()).astype(float),(rowData2.to_numpy()).astype(float))) # the method ttest_ind returns two value 1st :statistics 2nd : pvalue so we Sort it in an empty array called  paired
+    paired_pval.append(paired[i][1]) # we get only pvalue from array ind  and append it in an ind_pval array
     
 df['ind_pval'] = ind_pval # we add column in excel called ind_pval that have independant pvalues
 Writer=pd.ExcelWriter(r'./TRYERDATA225.xlsx')
 df.to_excel(Writer,'new_Sheet')
 Writer.save()
-
-
-print ('=' * 150)
-
-ind_corr = []
-ind_corr_pValue = []
-ind_pval_reject = []
-for i in range(0,df.shape[0]):   # we get from this for loop the corrected pvalues of ind. samples and whether to regect or accept null hypothesis
-    rowData = df.iloc[ i, 2: ]
-    rowData2 = df2.iloc[ i, 2: ]
-    # multipletests methos takes pvalue and alpha and the method we will use and returns 4 things: 1st whether to regect null hypothesis "True" or accept "False" and this is in list 2nd: the corrected pvalue in list 3rd: alphacSidak 4th:alphacBonf
-    ind_corr.append(statsmodels.stats.multitest.multipletests(ind_pval[i], alpha=0.05, method='fdr_tsbky', is_sorted=False, returnsorted=False))
-
-    ind_corr_pValue.append(ind_corr[i][1][0]) # we  get  the corrected pvalue and store it in an empty arrary called ind_corr_pValue
-    ind_pval_reject.append(ind_corr[i][0][0]) # we  get  whether to regect null hypothesis "True" or accept "False" and store it in an empty arrary called ind_pval_regect
-
-df['ind_corr_pval'] = ind_corr_pValue # we add new column with independant corrected pvalues
-Writer=pd.ExcelWriter(r'./TRYERDATA225.xlsx')
-df.to_excel(Writer,'new_Sheet')
-Writer.save()
-
-df['reject_null_hypothesis_ind'] = ind_pval_reject # we add new column with reject_null_hypothesis_ind
-Writer=pd.ExcelWriter(r'./NewTryer309.xlsx')
-df.to_excel(Writer,'new_Sheet')
-Writer.save()
-
-ind_corr_p_val2 = []
-ind_corr_pval_reject = []
-for i in range(0,df.shape[0]): # we use this for loop to get only whether to regect null hypothesis or accept it after correction of ind. pvalues
-    rowData = df.iloc[ i, 2: ]
-    rowData2 = df2.iloc[ i, 2: ]
-    ind_corr_p_val2.append(statsmodels.stats.multitest.multipletests(ind_corr_pValue[i], alpha=0.05, method='fdr_tsbky', is_sorted=False, returnsorted=False))
-
-    ind_corr_pval_reject.append(ind_corr_p_val2[i][0][0])  # we  get  whether to regect null hypothesis "True" or accept "False" and store it in an empty arrary called ind_corr_pval_reject
-
-df['reject_null_hypothesis_ind_corrected'] = ind_corr_pval_reject # we add new column with reject_null_hypothesis_ind_corrected
-Writer=pd.ExcelWriter(r'./TRYERDATA225.xlsx')
-df.to_excel(Writer,'new_Sheet')
-Writer.save()
-
-paired = []
-paired_pval = []
-for i in range(0,df.shape[0]): # this for Loop Is To Get Pvalues of paired samples
-    rowData = df.iloc[ i, 2:50 ]
-    rowData2 = df2.iloc[ i, 2:50 ]
-    paired.append(stats.ttest_rel((rowData.to_numpy()).astype(float),(rowData2.to_numpy()).astype(float))) # the method ttest_ind returns two value 1st :statistics 2nd : pvalue so we Sort it in an empty array called  paired
-    paired_pval.append(paired[i][1]) # we get only pvalue from array ind  and append it in an ind_pval array
-
 
 df['paired_pval'] = paired_pval # we add new column in excel with paired_pval
 Writer=pd.ExcelWriter(r'./TRYERDATA225.xlsx')
@@ -141,40 +99,72 @@ df.to_excel(Writer,'new_Sheet')
 Writer.save()
 
 print ('=' * 150)
+
+ind_corr = []
+ind_corr_pValue = []
+ind_pval_reject = []
 paired_corr = []
 paired_corr_pValue = []
 paired_reject = []
-for i in range(0,df.shape[0]): # we get from this for loop the corrected pvalues of paired samples and whether to regect or accept null hypothesis
-    rowData = df.iloc[ i, 2: ]
-    rowData2 = df2.iloc[ i, 2: ]
+for i in range(0,df.shape[0]):   # we get from this for loop the corrected pvalues of ind. samples and whether to regect or accept null hypothesis
+
+    # multipletests methos takes pvalue and alpha and the method we will use and returns 4 things: 1st whether to regect null hypothesis "True" or accept "False" and this is in list 2nd: the corrected pvalue in list 3rd: alphacSidak 4th:alphacBonf
+    ind_corr.append(statsmodels.stats.multitest.multipletests(ind_pval[i], alpha=0.05, method='fdr_tsbky', is_sorted=False, returnsorted=False))
+
+    ind_corr_pValue.append(ind_corr[i][1][0]) # we  get  the corrected pvalue and store it in an empty arrary called ind_corr_pValue
+    ind_pval_reject.append(ind_corr[i][0][0]) # we  get  whether to regect null hypothesis "True" or accept "False" and store it in an empty arrary called ind_pval_regect
+
     paired_corr.append(statsmodels.stats.multitest.multipletests(paired_pval[i], alpha=0.05, method='fdr_tsbky', is_sorted=False, returnsorted=False))
 
     paired_corr_pValue.append(paired_corr[i][1][0]) # we  get  the corrected pvalue and store it in an empty arrary called paired_corr_pValue
     paired_reject.append(paired_corr[i][0][0]) # we  get  whether to regect null hypothesis "True" or accept "False" and store it in an empty arrary called paired_reject
+
+df['ind_corr_pval'] = ind_corr_pValue # we add new column with independant corrected pvalues
+Writer=pd.ExcelWriter(r'./TRYERDATA225.xlsx')
+df.to_excel(Writer,'new_Sheet')
+Writer.save()
+
 
 df['paired_pval_corr'] = paired_corr_pValue # we add new column in excel with paired_pval_corr
 Writer=pd.ExcelWriter(r'./TRYERDATA225.xlsx')
 df.to_excel(Writer,'new_Sheet')
 Writer.save()
 
-df['reject_null_hypothesis_paired'] = paired_reject # we add new column in excel with reject_null_hypothesis_paired
-Writer=pd.ExcelWriter(r'./NewTryer309.xlsx')
-df.to_excel(Writer,'new_Sheet')
-Writer.save()
+print ('=' * 150)
 
+ind_corr_p_val2 = []
+ind_corr_pval_reject = []
 paired_corr2 = []
 paired_corr_pval_reject = []
 for i in range(0,df.shape[0]): # we use this for loop to get only whether to regect null hypothesis or accept it after correction of ind. pvalues
-    rowData = df.iloc[ i, 2: ]
-    rowData2 = df2.iloc[ i, 2: ]
+    
+    ind_corr_p_val2.append(statsmodels.stats.multitest.multipletests(ind_corr_pValue[i], alpha=0.05, method='fdr_tsbky', is_sorted=False, returnsorted=False))
+
+    ind_corr_pval_reject.append(ind_corr_p_val2[i][0][0])  # we  get  whether to regect null hypothesis "True" or accept "False" and store it in an empty arrary called ind_corr_pval_reject
     paired_corr2.append(statsmodels.stats.multitest.multipletests(paired_corr_pValue[i], alpha=0.05, method='fdr_tsbky', is_sorted=False, returnsorted=False))
     paired_corr_pval_reject.append(paired_corr2[i][0][0]) # we  get  whether to regect null hypothesis "True" or accept "False" and store it in an empty arrary called paired_corr_pval_reject
+
+df['reject_null_hypothesis_ind'] = ind_pval_reject # we add new column with reject_null_hypothesis_ind
+Writer=pd.ExcelWriter(r'./TRYERDATA225.xlsx')
+df.to_excel(Writer,'new_Sheet')
+Writer.save()
+
+df['reject_null_hypothesis_ind_corrected'] = ind_corr_pval_reject # we add new column with reject_null_hypothesis_ind_corrected
+Writer=pd.ExcelWriter(r'./TRYERDATA225.xlsx')
+df.to_excel(Writer,'new_Sheet')
+Writer.save()
+
+df['reject_null_hypothesis_paired'] = paired_reject # we add new column in excel with reject_null_hypothesis_paired
+Writer=pd.ExcelWriter(r'./TRYERDATA225.xlsx')
+df.to_excel(Writer,'new_Sheet')
+Writer.save()
 
 df['reject_null_hypothesis_paired_corrected'] = paired_corr_pval_reject # we add new column in excel with reject_null_hypothesis_paired_corrected
 Writer=pd.ExcelWriter(r'./TRYERDATA225.xlsx')
 df.to_excel(Writer,'new_Sheet')
 Writer.save()
-
+    
+print ('=' * 150)
 
 num_true_ind_before = np.sum(ind_pval_reject) # we Get No. Of True Values of independant samples before fdr correction
 num_true_ind_after = np.sum(ind_corr_pval_reject) # we Get No. Of True Values of independant samples after fdr correction
@@ -196,10 +186,11 @@ checker2=[]
 checker3 = []
 checker4=[]
 for i in range(0,df3.shape[0]):
-    row=df3.iloc[ i, 57:59]
+    row=df3.iloc[ i, 59:61]
     row2=df3.iloc[ i, 61:63]
     numpyRow = row.to_numpy()
     numpyRow2 = row2.to_numpy()
+
 
     if(numpyRow[0]!=numpyRow[1]): # we check if the true or false values of independant samples changes after correction and add it in an empty list called checker
         checker.append(df3.index[i])
